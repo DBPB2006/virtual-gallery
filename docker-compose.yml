@@ -3,7 +3,6 @@ services:
 
   client:
     build: ./client
-    container_name: client-container
     ports:
       - "5173:5173"
     environment:
@@ -19,7 +18,6 @@ services:
 
   auth-service:
     build: ./auth-service
-    container_name: auth-container
     ports:
       - "5001:5001"
     environment:
@@ -36,7 +34,6 @@ services:
 
   payment-service:
     build: ./payment-service
-    container_name: payment-container
     ports:
       - "5002:5002"
     environment:
@@ -51,7 +48,6 @@ services:
 
   backend-service:
     build: ./backend-service
-    container_name: backend-container
     ports:
       - "5050:5050"
     environment:
@@ -64,7 +60,6 @@ services:
 
   mongodb:
     image: mongo
-    container_name: mongodb-container
     ports:
       - "27017:27017"
     volumes:
