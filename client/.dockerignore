@@ -1,0 +1,65 @@
+# =========================================================================
+# Client Service (React/Vite) .dockerignore
+# =========================================================================
+
+# 1. Dependency Directories
+# Local node_modules are OS/architecture specific and must be installed fresh
+# in the container to match the container's environment.
+node_modules/
+jspm_packages/
+
+# 2. Production Build Artifacts
+# Exclude local build outputs to ensure builds are isolated and performed 
+# consistently inside the Docker container rather than copying local builds.
+dist/
+build/
+out/
+.svelte-kit/
+.next/
+
+# 3. Environment & Secrets
+# NEVER copy actual environment files containing secrets/API keys into the image.
+# Image layers are cacheable and public-facing; baking secrets in is a high security risk.
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# 4. Version Control & Editor Configs
+# Git metadata is unnecessary for running the application and bloats build context.
+.git
+.gitignore
+.gitattributes
+.hg
+.svn
+.idea/
+.vscode/
+*.sw?
+
+# 5. OS-Generated Files
+# Exclude platform-specific system clutter.
+.DS_Store
+.DS_Store?
+ehthumbs.db
+Thumbs.db
+
+# 6. Logging & Debugging
+# Avoid copying ephemeral local logs.
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 7. Testing & Coverage
+# Ephemeral test artifacts from the local machine should not bloat the image.
+coverage/
+.nyc_output/
+
+# 8. Docker Files
+# Docker instructions are processed by the daemon; they don't need to live inside the image.
+Dockerfile*
+docker-compose*
+.dockerignore
