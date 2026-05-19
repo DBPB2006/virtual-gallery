@@ -1,22 +1,12 @@
-# =========================================================================
-# Auth Service (Node.js/Express) .dockerignore
-# =========================================================================
 
-# 1. Dependency Directories
-# Exclude host-specific dependencies. Let npm/yarn handle this during the 
-# container build phase to target the correct container OS and architecture.
+
 node_modules/
 jspm_packages/
 
-# 2. Local File Uploads & Dynamic Storage
-# Local user uploads/media should never be baked into the static image.
-# These should be managed via Docker persistent volumes, Amazon S3, or shared volumes.
 uploads/
 storage/
 
-# 3. Environment & Secrets
-# Strictly exclude sensitive production keys, database passwords, and JWT secrets.
-# We whitelist '.env.example' so developers have a template structure inside the image.
+
 .env
 .env.local
 .env.development.local
@@ -25,8 +15,6 @@ storage/
 *.env
 !.env.example
 
-# 4. Version Control & Editor Configs
-# Remove git history and IDE configurations from the build context.
 .git
 .gitignore
 .gitattributes
@@ -36,28 +24,21 @@ storage/
 .vscode/
 *.sw?
 
-# 5. OS-Generated Files
-# Exclude platform-specific system metadata.
 .DS_Store
 .DS_Store?
 ehthumbs.db
 Thumbs.db
 
-# 6. Logging & Debugging
-# Prevent bloating the image layer with local runtime logs.
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# 7. Testing & Coverage
-# Exclude test reports and coverage instrumentation data.
 coverage/
 .nyc_output/
 
-# 8. Docker Files
-# Avoid copying Docker instructions inside the image itself.
+
 Dockerfile*
 docker-compose*
 .dockerignore

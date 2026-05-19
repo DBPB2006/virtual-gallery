@@ -175,12 +175,21 @@ exports.registerNewUser = async (req, res) => {
             picture
         });
 
-        await newUser.save();
-        console.log(`[AUTH][REGISTER_SUCCESS] Registered: ${email} as ${targetRole}`);
-
-        res.status(201).json({ message: 'User registered successfully' });
+        console.log(`[AUTH-CONTROLLER] Attempting to save new user: "${email}" (${targetRole})`);
+        try {
+            await newUser.save();
+            console.log(`[AUTH-CONTROLLER][SUCCESS] User saved successfully. ID: ${newUser._id}, Email: ${newUser.email}`);
+            res.status(201).json({ message: 'User registered successfully' });
+        } catch (saveError) {
+            console.error(`[AUTH-CONTROLLER][SAVE_FAIL] Database save failed for user "${email}":`, saveError.message);
+            if (saveError.name === 'ValidationError') {
+                console.error(`[AUTH-CONTROLLER][VALIDATION_ERROR] Detailed Validation Failures:`, JSON.stringify(saveError.errors));
+                return res.status(400).json({ message: "Validation error saving user", errors: saveError.errors });
+            }
+            throw saveError; // pass to outer catch
+        }
     } catch (error) {
-        console.error(`[AUTH][REGISTER_ERROR] Register process exception: ${error.message}`);
+        console.error(`[AUTH-CONTROLLER][REGISTER_ERROR] Register process exception: ${error.message}`);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -302,8 +311,18 @@ exports.googleRegister = async (req, res) => {
             isEmailVerified: true // Google accounts are pre-verified
         });
 
-        await newUser.save();
-        console.log(`[AUTH][GOOGLE_SUCCESS] Created: ${email} as Google ${allocatedRole}`);
+        console.log(`[AUTH-CONTROLLER] Attempting to save new Google user: "${email}" (${allocatedRole})`);
+        try {
+            await newUser.save();
+            console.log(`[AUTH-CONTROLLER][SUCCESS] Google user saved successfully. ID: ${newUser._id}, Email: ${newUser.email}`);
+        } catch (saveError) {
+            console.error(`[AUTH-CONTROLLER][SAVE_FAIL] Database save failed for Google user "${email}":`, saveError.message);
+            if (saveError.name === 'ValidationError') {
+                console.error(`[AUTH-CONTROLLER][VALIDATION_ERROR] Detailed Validation Failures:`, JSON.stringify(saveError.errors));
+                return res.status(400).json({ message: "Validation error saving Google user", errors: saveError.errors });
+            }
+            throw saveError;
+        }
 
         if (status === 'pending') {
             return res.status(201).json({

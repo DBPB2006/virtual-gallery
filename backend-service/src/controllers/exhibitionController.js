@@ -57,7 +57,7 @@ exports.createExhibitListing = async (req, res) => {
             priceINR = Number(price);
         }
 
-        const exhibition = await Exhibition.create({
+        const exhibition = new Exhibition({
             title,
             description,
             category,
@@ -76,10 +76,22 @@ exports.createExhibitListing = async (req, res) => {
             createdBy: req.user.id
         });
 
-        res.status(201).json(exhibition);
+        console.log(`[EXHIBITION-CONTROLLER] Attempting to save new exhibition: "${title}" by user ${req.user.id}`);
+        try {
+            await exhibition.save();
+            console.log(`[EXHIBITION-CONTROLLER][SUCCESS] Exhibition saved successfully to DB. ID: ${exhibition._id}, Title: "${exhibition.title}"`);
+            res.status(201).json(exhibition);
+        } catch (saveError) {
+            console.error(`[EXHIBITION-CONTROLLER][SAVE_FAIL] Database save failed for exhibition "${title}":`, saveError.message);
+            if (saveError.name === 'ValidationError') {
+                console.error(`[EXHIBITION-CONTROLLER][VALIDATION_ERROR] Detailed Mongoose Validation Failures:`, JSON.stringify(saveError.errors));
+                return res.status(400).json({ message: "Validation error saving exhibition", errors: saveError.errors });
+            }
+            throw saveError; // pass to outer catch
+        }
     } catch (error) {
-        console.error(`[ERROR][ExhibitionController] Create: ${error.message}`);
-        res.status(500).json({ message: "Server error" });
+        console.error(`[EXHIBITION-CONTROLLER][ERROR] Exhibition creation general error: ${error.message}`);
+        res.status(500).json({ message: "Server error during exhibition creation" });
     }
 };
 

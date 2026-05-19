@@ -85,7 +85,18 @@ exports.initiatePurchaseOrder = async (req, res) => {
             status: 'created'
         });
 
-        await newOrder.save();
+        console.log(`[PAYMENT-CONTROLLER] Attempting to save new order: User: ${userId}, Exhibition: ${exhibitionId}, Razorpay ID: ${orderData.id}`);
+        try {
+            await newOrder.save();
+            console.log(`[PAYMENT-CONTROLLER][SUCCESS] Order saved successfully to DB. ID: ${newOrder._id}, Status: ${newOrder.status}`);
+        } catch (saveError) {
+            console.error(`[PAYMENT-CONTROLLER][SAVE_FAIL] Database save failed for order:`, saveError.message);
+            if (saveError.name === 'ValidationError') {
+                console.error(`[PAYMENT-CONTROLLER][VALIDATION_ERROR] Detailed Validation Failures:`, JSON.stringify(saveError.errors));
+                return res.status(400).json({ message: "Validation error saving order", errors: saveError.errors });
+            }
+            throw saveError; // pass to outer catch
+        }
 
         if (isMock) {
             res.json({
@@ -151,7 +162,19 @@ exports.confirmPaymentStatus = async (req, res) => {
         order.status = 'paid';
         order.razorpayPaymentId = razorpay_payment_id;
         order.paidAt = new Date();
-        await order.save();
+
+        console.log(`[PAYMENT-CONTROLLER] Attempting to confirm order payment to 'paid'. Order ID: ${order._id}, Razorpay Order ID: ${razorpay_order_id}`);
+        try {
+            await order.save();
+            console.log(`[PAYMENT-CONTROLLER][SUCCESS] Order status successfully updated to 'paid'. Order ID: ${order._id}`);
+        } catch (saveError) {
+            console.error(`[PAYMENT-CONTROLLER][SAVE_FAIL] Database update failed for payment confirmation on order ${order._id}:`, saveError.message);
+            if (saveError.name === 'ValidationError') {
+                console.error(`[PAYMENT-CONTROLLER][VALIDATION_ERROR] Detailed Validation Failures:`, JSON.stringify(saveError.errors));
+                return res.status(400).json({ success: false, message: "Validation error confirming payment", errors: saveError.errors });
+            }
+            throw saveError;
+        }
 
         // Trigger Notifications asynchronously inside shared db
         (async () => {
