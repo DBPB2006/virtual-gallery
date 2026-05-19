@@ -86,7 +86,7 @@ const startServer = async () => {
 
     const PORT = process.env.PORT || 5050;
     server.listen(PORT, () => {
-        console.log(`[BACKEND-SERVICE] WebSocket + HTTP running on port ${PORT}`);
+        
     });
 };
 
