@@ -49,7 +49,7 @@ export function ExhibitorNavbar({ forceDark = false }) {
                         <span className={`font-heading text-xl font-bold tracking-tight transition-colors duration-300 flex items-center gap-1 group-hover:text-white ${textColorClass}`}>
                             VIRTUAL
                             <span className="font-light opacity-70 group-hover:text-gray-400 group-hover:opacity-100 transition-all duration-300">
-                                EXHIBIT
+                                Gallery
                             </span>
                             <span className={`ml-2 text-[10px] uppercase tracking-widest border border-current px-2 py-0.5 rounded-full opacity-50 ${textColorClass}`}>
                                 Exhibitor
