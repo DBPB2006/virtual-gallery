@@ -5,3 +5,4 @@ build
 coverage
 uploads
 .DS_Store
+docker-compose.yml
