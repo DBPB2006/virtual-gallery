@@ -5,7 +5,7 @@ pipeline {
         // Docker Registry credentials and image settings
         DOCKER_HUB_CREDENTIALS_ID = 'docker-hub-credentials'
         DOCKER_REGISTRY = 'docker.io'
-        DOCKER_USER = 'dbpb2006'
+        DOCKER_USER = 'dbpb'
         
         // Target AWS EC2 SSH connection parameters
         SSH_CREDENTIALS_ID = 'ec2-ssh-credentials'
