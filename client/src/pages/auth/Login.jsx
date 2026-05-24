@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEnvelope, faLock, faSignInAlt, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
@@ -69,50 +69,7 @@ const Login = () => {
         }
     };
 
-    // Google Sign-In Hook (Custom Button)
-    const googleLogin = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setLoading(true);
-            dispatch(setGlobalLoading(true));
-            setError(null);
-            try {
-                // STRICT LOGIN FLOW
-                const response = await authApi.post('/api/auth/google/login', {
-                    token: tokenResponse.access_token
-                });
 
-                const { user, redirectPath } = response.data;
-                dispatch(setCredentials({ user, role: user.role }));
-
-                if (redirectPath) {
-                    navigate(redirectPath);
-                } else {
-                    navigate(from, { replace: true });
-                }
-            } catch (err) {
-                console.error("Google Auth Error:", err);
-
-                // Specific Handling for Unregistered Users
-                if (err.response?.data?.needRegistration) {
-                    setError(
-                        <span>
-                            Account not found. <Link to="/register" className="underline hover:text-white">Please register first.</Link>
-                        </span>
-                    );
-                } else {
-                    const msg = err.response?.data?.message || "Google Sign-In failed. Please try again.";
-                    setError(msg);
-                }
-                setLoading(false);
-                dispatch(setGlobalLoading(false));
-            }
-        },
-        onError: () => {
-            setError("Google Sign-In failed. Please check your network.");
-            setLoading(false);
-            dispatch(setGlobalLoading(false));
-        }
-    });
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white font-sans selection:bg-white selection:text-black flex flex-col">
@@ -191,14 +148,50 @@ const Login = () => {
                                 <div className="h-px bg-white/10 flex-1" />
                             </div>
 
-                            {/* Custom Google Button */}
-                            <button
-                                onClick={() => googleLogin()}
-                                className="w-full max-w-[300px] bg-white text-black font-medium text-sm py-3 px-6 rounded-full hover:bg-neutral-200 transition-colors flex items-center justify-center gap-3"
-                            >
-                                <FontAwesomeIcon icon={faGoogle} className="text-lg" />
-                                <span>Sign in with Google</span>
-                            </button>
+                            {/* Google OAuth Login Component */}
+                            <GoogleLogin
+                                onSuccess={async (credentialResponse) => {
+                                    setLoading(true);
+                                    dispatch(setGlobalLoading(true));
+                                    setError(null);
+                                    try {
+                                        const response = await authApi.post('/api/auth/google/login', {
+                                            credential: credentialResponse.credential
+                                        });
+
+                                        const { user, redirectPath } = response.data;
+                                        dispatch(setCredentials({ user, role: user.role }));
+
+                                        if (redirectPath) {
+                                            navigate(redirectPath);
+                                        } else {
+                                            navigate(from, { replace: true });
+                                        }
+                                    } catch (err) {
+                                        console.error("Google Auth Error:", err);
+                                        if (err.response?.data?.needRegistration) {
+                                            setError(
+                                                <span>
+                                                    Account not found. <Link to="/register" className="underline hover:text-white">Please register first.</Link>
+                                                </span>
+                                            );
+                                        } else {
+                                            const msg = err.response?.data?.message || "Google Sign-In failed. Please try again.";
+                                            setError(msg);
+                                        }
+                                        setLoading(false);
+                                        dispatch(setGlobalLoading(false));
+                                    }
+                                }}
+                                onError={() => {
+                                    setError("Google Sign-In failed. Please check your network.");
+                                    setLoading(false);
+                                    dispatch(setGlobalLoading(false));
+                                }}
+                                theme="filled_blue"
+                                shape="circle"
+                                size="large"
+                            />
                         </div>
 
                         <div className="mt-8 text-center">

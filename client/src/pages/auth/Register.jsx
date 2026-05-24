@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import ReCAPTCHA from "react-google-recaptcha";
 import { Link, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -121,60 +121,7 @@ const Register = () => {
         }
     };
 
-    // Google Hook
-    const googleSignup = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setLoading(true);
-            setError(null);
-            try {
-                // STRICT REGISTER FLOW
-                if (!captchaToken) {
-                    setError("Please complete the Captcha.");
-                    setLoading(false);
-                    return;
-                }
-                if (formData.role === 'exhibitor' && !tncAccepted) {
-                    setError("You must accept the Terms and Conditions.");
-                    setLoading(false);
-                    return;
-                }
 
-                const response = await authApi.post('/api/auth/google/register', {
-                    token: tokenResponse.access_token,
-                    role: formData.role,
-                    captchaToken,
-                    tncAccepted
-                });
-
-                if (response.status === 201 && response.data.user.status === 'pending') {
-                    setLoading(false);
-                    navigate('/login', { state: { message: "Account created! Your exhibitor status is PENDING approval." } });
-                    return;
-                }
-
-                const { user } = response.data;
-                dispatch(setCredentials({ user, role: user.role }));
-
-                const redirectPath = user.role === 'admin'
-                    ? '/dashboard/admin'
-                    : user.role === 'exhibitor'
-                        ? '/dashboard/exhibitor'
-                        : '/';
-
-                navigate(redirectPath);
-
-            } catch (err) {
-                console.error("Google Auth Error:", err);
-                const msg = err.response?.data?.message || "Google Sign-Up failed. Please try again.";
-                setError(msg);
-                setLoading(false);
-            }
-        },
-        onError: () => {
-            setError("Google Sign-Up failed. Please check your network.");
-            setLoading(false);
-        }
-    });
 
     const isExhibitor = formData.role === 'exhibitor';
 
@@ -430,15 +377,57 @@ const Register = () => {
                                             <div className="h-px bg-white/10 flex-1" />
                                         </div>
 
-                                        <button
-                                            type="button"
-                                            onClick={() => googleSignup()}
-                                            disabled={isGoogleDisabled}
-                                            className="w-full bg-neutral-800 text-white font-medium text-xs py-3 rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed border border-neutral-700"
-                                        >
-                                            <FontAwesomeIcon icon={faGoogle} />
-                                            <span>Continue with Google</span>
-                                        </button>
+                                        {/* Google OAuth Register Component */}
+                                        {(!isExhibitor || tncAccepted) ? (
+                                            <div className="flex justify-center w-full">
+                                                <GoogleLogin
+                                                    onSuccess={async (credentialResponse) => {
+                                                        setLoading(true);
+                                                        setError(null);
+                                                        try {
+                                                            const response = await authApi.post('/api/auth/google/register', {
+                                                                credential: credentialResponse.credential,
+                                                                role: formData.role
+                                                            });
+
+                                                            if (response.status === 201 && response.data.user.status === 'pending') {
+                                                                setLoading(false);
+                                                                navigate('/login', { state: { message: "Account created! Your exhibitor status is PENDING approval." } });
+                                                                return;
+                                                            }
+
+                                                            const { user } = response.data;
+                                                            dispatch(setCredentials({ user, role: user.role }));
+
+                                                            const redirectPath = user.role === 'admin'
+                                                                ? '/dashboard/admin'
+                                                                : user.role === 'exhibitor'
+                                                                    ? '/dashboard/exhibitor'
+                                                                    : '/';
+
+                                                            navigate(redirectPath);
+
+                                                        } catch (err) {
+                                                            console.error("Google Auth Error:", err);
+                                                            const msg = err.response?.data?.message || "Google Sign-Up failed. Please try again.";
+                                                            setError(msg);
+                                                            setLoading(false);
+                                                        }
+                                                    }}
+                                                    onError={() => {
+                                                        setError("Google Sign-Up failed. Please check your network.");
+                                                        setLoading(false);
+                                                    }}
+                                                    theme="filled_blue"
+                                                    shape="pill"
+                                                    size="large"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="text-center text-neutral-500 text-xs py-3 border border-dashed border-neutral-700 rounded-lg w-full">
+                                                Please accept the Terms & Conditions to enable Google Sign-Up.
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

@@ -52,8 +52,8 @@ const sessionMiddleware = session({
     }),
     cookie: {
         httpOnly: true,
-        secure: isProd, // Secure in production HTTPS
-        sameSite: isProd ? 'none' : 'lax', // Lax in dev, None in prod HTTPS
+        secure: false, // Set to false to support HTTP deployments (like http://100.31.194.101:5173)
+        sameSite: 'lax', // Lax is perfect for same-origin single-port Nginx proxy setup
         maxAge: 1000 * 60 * 60 * 24 // 1 day
     }
 });
