@@ -29,5 +29,32 @@ export default defineConfig({
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
     },
+    proxy: {
+      '/api/auth': {
+        target: 'http://localhost:5001',
+        changeOrigin: true
+      },
+      '/api/verification': {
+        target: 'http://localhost:5001',
+        changeOrigin: true
+      },
+      '/api/payments': {
+        target: 'http://localhost:5002',
+        changeOrigin: true
+      },
+      '/api': {
+        target: 'http://localhost:5050',
+        changeOrigin: true
+      },
+      '/uploads': {
+        target: 'http://localhost:5050',
+        changeOrigin: true
+      },
+      '/socket.io': {
+        target: 'http://localhost:5050',
+        ws: true,
+        changeOrigin: true
+      }
+    }
   },
 })

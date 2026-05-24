@@ -52,7 +52,7 @@ const CategoryCard = ({ category, description, exhibitions = [], count = 0 }) =>
                         >
                             {exh.coverImage ? (
                                 <img
-                                    src={exh.coverImage.startsWith('http') ? exh.coverImage : `http://localhost:5050${exh.coverImage}`}
+                                    src={exh.coverImage}
                                     alt={exh.title}
                                     className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700 ease-out"
                                 />

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Calendar, Eye } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Renders a visual card for an exhibition, adapting styles based on the exhibition theme (art, fashion, modern)
 export function ExhibitionCard({ exhibition, index, variant = 'default' }) {

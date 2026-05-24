@@ -32,7 +32,7 @@ const getCategorySlug = (category) => {
     return category.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-');
 };
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || import.meta.env.VITE_BACKEND_API || import.meta.env.VITE_API_URL || 'http://localhost:5050';
+const BACKEND_URL = '';
 
 // Renders the main landing page, featuring hero content, presets, and exhibition categories with filtering and scroll animations
 const Home = () => {

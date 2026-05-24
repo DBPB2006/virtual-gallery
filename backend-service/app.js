@@ -7,24 +7,41 @@ const path = require('path');
 
 const app = express();
 
-const cleanOrigin = (url) => {
-    if (!url) return 'http://localhost:5173';
-    return url.replace(/\/$/, '');
-};
+// Trust proxy is critical behind reverse proxies (Nginx, ngrok, AWS ALB)
+app.set('trust proxy', 1);
+
+const isProd = process.env.NODE_ENV === 'production';
+
+// Simple CORS setup: allows local, EC2 public IP domain, and client URL from env
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'http://100.31.194.101:5173',
+    process.env.CLIENT_URL
+].filter(Boolean);
 
 app.use(cors({
-    origin: cleanOrigin(process.env.CLIENT_URL),
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin) || origin.includes('localhost') || origin.endsWith('.ngrok-free.dev') || origin.endsWith('.ngrok.io')) {
+            callback(null, true);
+        } else {
+            console.warn(`[CORS][BLOCKED] Origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
+app.options('*', cors()); // Enable preflight handling
+
 app.use(express.json());
 app.use(cookieParser());
 
 // Expose static media gallery folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Shared express session configuration (Session State is distributed in MongoDB)
+// Clean and simple express session configuration
 const sessionMiddleware = session({
-    secret: process.env.SESSION_SECRET || 'dev_fallback_secret_auth_long_string_key',
+    secret: process.env.SESSION_SECRET || 'vg_s3ss10n_k3y_Pr3mBhuvan_2006_Secure!XYZ',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -33,8 +50,9 @@ const sessionMiddleware = session({
     }),
     cookie: {
         httpOnly: true,
-        secure: false, // Set to true in prod HTTPS
-        maxAge: 1000 * 60 * 60 * 24 // 1 day session life
+        secure: isProd, // Secure in production HTTPS
+        sameSite: isProd ? 'none' : 'lax', // Lax in dev, None in prod HTTPS
+        maxAge: 1000 * 60 * 60 * 24 // 1 day
     }
 });
 

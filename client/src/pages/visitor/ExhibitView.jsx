@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLandmark, faWaveSquare, faChevronDown, faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { Send, Users, MessageSquare, X } from "lucide-react";
 
-const SOCKET_URL = import.meta.env.VITE_BACKEND_API_URL || import.meta.env.VITE_BACKEND_API || import.meta.env.VITE_API_URL || "http://localhost:5050";
+const SOCKET_URL = '';
 
 // Use Case: Heads-Up Display Component
 const HUD = ({ activeUsersCount, onToggleChat, onNavigateHome, onScrollToInfo }) => {

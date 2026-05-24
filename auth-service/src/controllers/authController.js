@@ -24,6 +24,10 @@ async function verifyRecaptcha(token) {
             method: 'POST'
         });
         const data = await response.json();
+        console.log(`[CAPTCHA][DIAGNOSTICS] Verification result:`, data);
+        if (!data.success) {
+            console.error(`[CAPTCHA][FAIL] reCAPTCHA validation failed. Error codes: ${JSON.stringify(data['error-codes'])}`);
+        }
         return data.success;
     } catch (error) {
         console.error(`[CAPTCHA][ERROR] Verification failed: ${error.message}`);

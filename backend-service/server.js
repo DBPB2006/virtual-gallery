@@ -1,4 +1,5 @@
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 const app = require('./app');
 const connectDB = require('./src/config/db');
 const http = require('http');
@@ -11,11 +12,40 @@ const cleanOrigin = (url) => {
     return url.replace(/\/$/, '');
 };
 
+const allowedOrigins = new Set([
+    'http://localhost:5173',
+    'http://localhost:3000',
+    'https://angling-curly-pretext.ngrok-free.dev'
+]);
+
+if (process.env.CLIENT_URL) {
+    allowedOrigins.add(cleanOrigin(process.env.CLIENT_URL));
+}
+if (process.env.ALLOWED_ORIGINS) {
+    process.env.ALLOWED_ORIGINS.split(',').forEach(o => allowedOrigins.add(cleanOrigin(o.trim())));
+}
+
+const socketCorsOptions = {
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const originClean = cleanOrigin(origin);
+        if (allowedOrigins.has(originClean)) {
+            return callback(null, true);
+        }
+        const isLocalhost = /^http:\/\/localhost(:\d+)?$/.test(originClean) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(originClean);
+        const isNgrok = /\.ngrok-free\.dev$/.test(originClean) || /\.ngrok\.io$/.test(originClean);
+        const isEC2 = /^http(s)?:\/\/ec2-.*\.compute(-1)?\.amazonaws\.com(:\d+)?$/.test(originClean) || 
+                      /^http(s)?:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(:\d+)?$/.test(originClean);
+        if (isLocalhost || isNgrok || isEC2) {
+            return callback(null, true);
+        }
+        callback(new Error(`Not allowed by CORS: ${origin}`));
+    },
+    credentials: true
+};
+
 const io = new Server(server, {
-    cors: {
-        origin: cleanOrigin(process.env.CLIENT_URL),
-        credentials: true
-    }
+    cors: socketCorsOptions
 });
 
 // Socket Authentication Middleware via shared session store

@@ -1,26 +1,30 @@
 import axios from "axios";
 
-// 1. authApi targets auth-service (Port 5001)
+// Centralized API configuration: in both dev and prod, we use relative routes.
+// Dev proxies are handled by Vite; Production proxies are handled by Nginx.
+const BASE_URL = "";
+
+// 1. authApi targets auth-service
 export const authApi = axios.create({
-    baseURL: import.meta.env.VITE_AUTH_API_URL || import.meta.env.VITE_AUTH_API || "http://localhost:5001",
+    baseURL: BASE_URL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
     }
 });
 
-// 2. paymentApi targets payment-service (Port 5002)
+// 2. paymentApi targets payment-service
 export const paymentApi = axios.create({
-    baseURL: import.meta.env.VITE_PAYMENT_API_URL || import.meta.env.VITE_PAYMENT_API || "http://localhost:5002",
+    baseURL: BASE_URL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
     }
 });
 
-// 3. api (Default) targets backend-service (Port 5050)
+// 3. api (Default) targets backend-service
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BACKEND_API_URL || import.meta.env.VITE_BACKEND_API || import.meta.env.VITE_API_URL || "http://localhost:5050",
+    baseURL: BASE_URL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
@@ -40,3 +44,4 @@ authApi.interceptors.response.use((r) => r, handleSessionExpiration);
 paymentApi.interceptors.response.use((r) => r, handleSessionExpiration);
 
 export default api;
+export const RESOLVED_BACKEND_API_URL = BASE_URL;
