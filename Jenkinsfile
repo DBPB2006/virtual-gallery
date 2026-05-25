@@ -36,7 +36,7 @@ pipeline {
                 }
             }
         }
-
+// stage 3
         stage('Push Docker Images to Docker Hub') {
             steps {
                 script {
@@ -66,7 +66,7 @@ pipeline {
                 }
             }
         }
-
+// stage 4
         stage('Deploy to AWS EC2') {
             steps {
                 script {
