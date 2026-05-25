@@ -68,27 +68,26 @@ pipeline {
         }
 // stage 4
         stage('Deploy to AWS EC2') {
-            steps {
-                script {
+    steps {
+        script {
 
-                    sshagent(credentials: ["${SSH_CREDENTIALS_ID}"]) {
+            sh """
+                ssh -i ~/Downloads/virtual-gallery.pem \
+                -o StrictHostKeyChecking=no \
+                ubuntu@100.31.194.101 '
 
-                        sh """
-                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_PUBLIC_IP} '
+                    cd ~/virtual-gallery
 
-                                cd ~/virtual-gallery
+                    docker compose pull
 
-                                docker compose pull
+                    docker compose up -d --remove-orphans
 
-                                docker compose up -d --remove-orphans
-
-                                docker image prune -f
-                            '
-                        """
-                    }
-                }
-            }
+                    docker image prune -f
+                '
+            """
         }
+    }
+}
     }
 
     post {
