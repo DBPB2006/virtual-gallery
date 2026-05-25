@@ -2,6 +2,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 const app = require('./app');
 const connectDB = require('./src/config/db');
+const seedAdmin = require('./src/config/seed');
 const http = require('http');
 const { Server } = require("socket.io");
 
@@ -113,6 +114,7 @@ io.on("connection", (socket) => {
 
 const startServer = async () => {
     await connectDB();
+    await seedAdmin();
 
     const PORT = process.env.PORT || 5050;
     server.listen(PORT, () => {
