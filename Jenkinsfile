@@ -15,13 +15,13 @@ pipeline {
     }
 
     stages {
-
+// stage 1
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
+// stage 2
         stage('Build Docker Images') {
             steps {
                 script {
