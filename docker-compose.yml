@@ -1,0 +1,98 @@
+services:
+
+  client:
+    image: dbpb/client:latest
+    container_name: virtual-gallery-client
+
+    ports:
+      - "5173:5173"
+
+    environment:
+      - NODE_ENV=production
+      - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+      - VITE_RECAPTCHA_SITE_KEY=${VITE_RECAPTCHA_SITE_KEY}
+
+    restart: always
+
+    depends_on:
+      - auth-service
+      - payment-service
+      - backend-service
+
+  auth-service:
+    image: dbpb/auth-service:latest
+    container_name: virtual-gallery-auth
+
+    ports:
+      - "5001:5001"
+
+    environment:
+      - NODE_ENV=production
+      - PORT=5001
+      - MONGO_URI=${MONGO_URI}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - RECAPTCHA_SECRET_KEY=${RECAPTCHA_SECRET_KEY}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - CLIENT_URL=${CLIENT_URL}
+
+    restart: always
+
+    depends_on:
+      - mongodb
+
+  payment-service:
+    image: dbpb/payment-service:latest
+    container_name: virtual-gallery-payment
+
+    ports:
+      - "5002:5002"
+
+    environment:
+      - NODE_ENV=production
+      - PORT=5002
+      - MONGO_URI=${MONGO_URI}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - RAZORPAY_KEY_ID=${RAZORPAY_KEY_ID}
+      - RAZORPAY_KEY_SECRET=${RAZORPAY_KEY_SECRET}
+      - CLIENT_URL=${CLIENT_URL}
+
+    restart: always
+
+    depends_on:
+      - mongodb
+
+  backend-service:
+    image: dbpb/backend-service:latest
+    container_name: virtual-gallery-backend
+
+    ports:
+      - "5050:5050"
+
+    environment:
+      - NODE_ENV=production
+      - PORT=5050
+      - MONGO_URI=${MONGO_URI}
+      - CLIENT_URL=${CLIENT_URL}
+
+    restart: always
+
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: virtual-gallery-mongodb
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongodb_data:/data/db
+
+    restart: always
+
+
+volumes:
+  mongodb_data:
