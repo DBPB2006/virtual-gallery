@@ -9,7 +9,7 @@ pipeline {
         DOCKER_USER = 'dbpb'
 
         // AWS EC2 Deployment
-        EC2_PUBLIC_IP = '100.31.194.101'
+        EC2_PUBLIC_IP = '35.153.49.67'
         EC2_USER = 'ubuntu'
     }
 
