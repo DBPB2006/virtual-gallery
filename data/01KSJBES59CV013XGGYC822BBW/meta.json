@@ -1,0 +1,18 @@
+{
+	"ulid": "01KSJBES59CV013XGGYC822BBW",
+	"minTime": 1779795395340,
+	"maxTime": 1779796800000,
+	"stats": {
+		"numSamples": 398283,
+		"numFloatSamples": 398283,
+		"numSeries": 7408,
+		"numChunks": 7408
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01KSJBES59CV013XGGYC822BBW"
+		]
+	},
+	"version": 1
+}
